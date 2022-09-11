@@ -20,6 +20,7 @@ public:
 	Date();
 	Date(const Date& object);
 	Date(Date&& object);
+	void Put();
 	int get_day() const;
 	int get_month() const;
 	int get_year() const;
@@ -58,6 +59,22 @@ Date::Date(Date&& object)
 	}
 	else
 		throw "\nWrong date!\n";
+}
+void Date::Put()
+{
+	int dayP, monthP, yearP;
+
+	cout << "\nPlease enter birthday date: ";
+	cin >> dayP;
+	day = dayP;
+
+	cout << "\nPlease enter birthday month: ";
+	cin >> monthP;
+	month = monthP;
+
+	cout << "\nPlease enter birthday year: ";
+	cin >> yearP;
+	year = yearP;
 }
 int Date::get_day() const { return day; }
 int Date::get_month() const { return month; }
@@ -153,6 +170,7 @@ public:
 	~Contact();
 	Contact(const Contact& object);
 	Contact(Contact&& object);
+	void Put();
 	char* get_name() const;
 	char* get_surname() const;
 	char* get_email() const;
@@ -218,6 +236,53 @@ Contact::~Contact()
 {
 	remove();
 }
+void Contact::Put()
+{
+	char temp[1024];
+
+	cout << "\nEnter name:\n";
+	cin >> temp;
+	if (name)
+		delete[] name;
+	name = new char[strlen(temp) + 1];
+	if (!name) {
+		throw "Error during memory allocation !!!";
+	} 
+	strcpy_s(name, strlen(temp) + 1, temp);
+
+	cout << "\nEnter surname:\n";
+	cin >> temp;
+	if (surname)
+		delete[] surname;
+	surname = new char[strlen(temp) + 1];
+	if (!surname) {
+		throw "Error during memory allocation !!!";
+	}
+	strcpy_s(surname, strlen(temp) + 1, temp);
+
+	birthday.Put();
+
+	cout << "\nEnter email:\n";
+	cin >> temp;
+	if (email)
+		delete[] email;
+	email = new char[strlen(temp) + 1];
+	if (!email) {
+		throw "Error during memory allocation !!!";
+	}
+	strcpy_s(email, strlen(temp)+1, temp);
+
+	cout << "\nEnter phone:\n";
+	cin >> temp;
+	if (phone)
+		delete[] phone;
+	phone = new char[strlen(temp) + 1];
+	if (!phone) {
+		throw "Error during memory allocation !!!";
+	}
+	strcpy_s(phone, strlen(temp) + 1, temp);
+
+}
 char* Contact::get_name() const
 {
 	return name;
@@ -242,7 +307,8 @@ void Contact::set_name(char* nameP)
 {
 	if (nameP)
 	{
-		if (strlen(name) != strlen(nameP))	
+
+		if (name != nullptr)	
 			delete[] name;
 			
 		setCharArray(name, nameP);
@@ -252,7 +318,7 @@ void Contact::set_surname(char* surnameP)
 {
 	if (surnameP)
 	{
-		if (strlen(surname) != strlen(surnameP))
+		if (surname != nullptr)
 			delete[] surname;
 
 		setCharArray(surname, surnameP);
@@ -263,7 +329,7 @@ void Contact::set_email(char* emailP)
 {
 	if (emailP)
 	{
-		if (strlen(email) != strlen(emailP))
+		if (email != nullptr)
 			delete[] email;
 
 		setCharArray(email, emailP);
@@ -273,7 +339,7 @@ void Contact::set_phone(char* phoneP)
 {
 	if (phoneP)
 	{
-		if (strlen(phone) != strlen(phoneP))
+		if (phone != nullptr)
 			delete[] phone;
 			
 		setCharArray(phone, phoneP);
@@ -404,7 +470,8 @@ void Contacts::Push(const Contact contactP)
 		temp[i] = st[i];
 
 	temp[++top] = contactP;
-	delete[] st;
+	if(st != nullptr)
+		delete[] st;
 	st = new Contact[top + 1];
 	for (int i = 0; i <= top; i++)
 		st[i] = temp[i];
@@ -415,9 +482,9 @@ void Contacts::Push()
 	Contact* temp = new Contact[top + 2];
 	for (size_t i = 0; i < top + 1; i++)
 		temp[i] = st[i];
-
-	temp[++top] = Contact();
-	delete[] st;
+	top++;
+	if(st != nullptr)
+		delete[] st;
 	st = new Contact[top+1];
 	for (int i = 0; i <= top; i++)
 		st[i] = temp[i];
@@ -508,35 +575,36 @@ void Contacts::SaveToFile(int i)
 	delete[] temp;
 }
 void Contacts::LoadFromFile() {
-	fstream f("text.txt", ios::in | ios::binary);
+	fstream f("Contacts.txt", ios::in | ios::binary);
 	if (!f) {
 		throw "\nFile is not opened for reading!\n\n";
 	}
-	char* n = nullptr, *s = nullptr, *e = nullptr, *p = nullptr;
+	char* temp = nullptr;
 	int size;
 	int dayP, monthP, yearP;
 	int i = 0;
 	//В цикле зачитываем содержимое файла
 	while (f.read((char*)&size, sizeof(int))) {
 		Push();
-		if (strlen(n) != size)
-		{
-			if (n != nullptr)
-				delete[] n;
-			n = new char[size + 1];
-		}
-		f.read((char*)n, size * sizeof(char));
-		st[i].set_name(n);
+
+		if (temp != nullptr)
+			delete[] temp;
+
+		temp = new char[size + 1];
+
+		f.read((char*)temp, size * sizeof(char));
+		temp[size] = '\0';
+		st[i].set_name(temp);
 
 		f.read((char*)&size, sizeof(int));
-		if (strlen(s) != size)
-		{
-			if (s != nullptr)
-				delete[] s;
-			s = new char[size + 1];
-		}
-		f.read((char*)s, size * sizeof(char));
-		st[i].set_surname(s);
+
+		if (temp != nullptr)
+				delete[] temp;
+		temp = new char[size + 1];
+		
+		f.read((char*)temp, size * sizeof(char));
+		temp[size] = '\0';
+		st[i].set_surname(temp);
 
 		f.read((char*)&dayP, sizeof(int));
 		f.read((char*)&monthP, sizeof(int));
@@ -544,37 +612,36 @@ void Contacts::LoadFromFile() {
 		st[i].set_birthday({ dayP, monthP, yearP });
 
 		f.read((char*)&size, sizeof(int));
-		if (strlen(e) != size)
-		{
-			if (e != nullptr)
-				delete[] e;
-			e = new char[size + 1];
-		}
-		f.read((char*)e, size * sizeof(char));
-		st[i].set_email(e);
+		if (temp != nullptr)
+				delete[] temp;
+		temp = new char[size + 1];
+		
+		f.read((char*)temp, size * sizeof(char));
+		temp[size] = '\0';
+		st[i].set_email(temp); 
 
 		f.read((char*)&size, sizeof(int));
-		if (strlen(p) != size)
-		{
-			if (p != nullptr)
-				delete[] p;
-			p = new char[size + 1];
-		}
-		f.read((char*)p, size * sizeof(char));
-		st[i].set_phone(p);
+		if (temp != nullptr)
+				delete[] temp;
+
+		temp = new char[size + 1];
+		
+		f.read((char*)temp, size * sizeof(char));
+		temp[size] = '\0';
+		st[i].set_phone(temp);
 
 		i++;
 	}
 
-	delete[] n;
-	delete[] s;
-	delete[] e;
-	delete[] p;
+	delete[] temp;
+
 }
 void Contacts::Show() const
 {
+	cout << endl;
 	for (size_t i = 0; i <= top; i++)
 	{
+		cout << "Contact " << i + 1 << " is:\n";
 		st[i].show();
 		cout << "\n";
 	}
@@ -587,39 +654,70 @@ void Contacts::SaveAllToFile()
 	}
 }
 
-
+int Contacts_Menu()
+{
+	int temp;
+	cout << "\nPlease make your choice:\n";
+	cout << " 1 - to see all contacts\n";
+	cout << " 2 - to add new contact\n";
+	cout << " 3 - to edit new contact\n";
+	cout << " 4 - to delete contact\n";
+	cout << " 0 - to exit programm\n";
+	cin >> temp;
+	cout << "Your choice is " << temp << endl;
+	return temp;
+}
 
 int main() {
 
 	try 
 	{
-		Contact c1 { "Andrii", "Dunaiev", {6, 9, 1978},
-			"adunaev@me.com", "+380503994545" };
-		Contact c2{ "Vasia", "Frolov", {17, 4, 1981},
-			"vfrol@apple.com", "+380501111111" };
-		Contact c3{ "Luda", "Kirilova", {30, 6, 1978},
-			"lkirilova@icloud.com", "+380671234567" };
-		Contact c4{ "Petro", "Kirichenko", {12, 12, 1993},
-			"pk@github.com", "+380331325476" };
-		Contact c5{ "Valia", "Kitaeva", {14, 5, 1998},
-			"vkitaeva@bbc.com", "+380501000000" };
+		//Contact c1 { "Andrii", "Dunaiev", {6, 9, 1978},
+		//	"adunaev@me.com", "+380503994545" };
+		//Contact c2{ "Vasia", "Frolov", {17, 4, 1981},
+		//	"vfrol@apple.com", "+380501111111" };
+		//Contact c3{ "Luda", "Kirilova", {30, 6, 1978},
+		//	"lkirilova@icloud.com", "+380671234567" };
+		//Contact c4{ "Petro", "Kirichenko", {12, 12, 1993},
+		//	"pk@github.com", "+380331325476" };
+		//Contact c5{ "Valia", "Kitaeva", {14, 5, 1998},
+		//	"vkitaeva@bbc.com", "+380501000000" };
 
-		MyAddressBook.Push(c1);
-		MyAddressBook.Push(c2);
-		MyAddressBook.Push(c3);
-		MyAddressBook.Push(c4);
-		MyAddressBook.Push(c5);
+		//MyAddressBook.Push(c1);
+		//MyAddressBook.Push(c2);
+		//MyAddressBook.Push(c3);
+		//MyAddressBook.Push(c4);
+		//MyAddressBook.Push(c5);
 
-		cout << "MyAddressBook\n";
-		MyAddressBook.Show();	
-		MyAddressBook.SaveAllToFile();
-		cout << "M2\n";
+		//cout << "MyAddressBook\n";
+		//MyAddressBook.Show();	
+		//MyAddressBook.SaveAllToFile();
 
-		//Contacts M2;
+		Contacts M2;
+		M2.LoadFromFile();
 
-		//M2.LoadFromFile();
 
-		//M2.Show();
+		do {
+			switch (Contacts_Menu()) {
+			case 1: 
+				M2.Show();
+				break;
+			case 2:
+				M2.Push();
+				M2.get_contact(M2.GetCount()).Put();
+				break;
+			case 3:  
+				
+				break;
+			case 0:  
+				cout << "Good Buy!\n";
+				return 0;	
+			default: 
+				cout << "Wrong choice!\n";
+			}
+		} while (1);
+
+		
 	}
 
 	catch (char* su) {
