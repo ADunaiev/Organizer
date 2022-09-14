@@ -427,11 +427,13 @@ public:
 	Contacts();
 	void Push(const Contact contactP);
 	void Push();
+	void Delete(int temp);
 	Contact Pop();
 	void Clear();
 	bool IsEmpty();
 	bool IsFull();
 	int GetCount();
+	void set_contact(const Contact& contactP, int idx);
 	Contact get_contact(int temp);
 	void SaveToFile(int i);
 	void LoadFromFile();
@@ -462,6 +464,38 @@ bool Contacts::IsFull()
 int Contacts::GetCount()
 {
 	return top + 1;
+}
+void Contacts::Delete(int temp)
+{
+	if (!IsEmpty())
+	{
+		int idx = temp - 1;
+
+		if (idx < 0 || idx > top )
+			throw "Error!!! Out of array range!\n";
+
+		Contact* tem = new Contact[top];
+		
+		for (size_t i = 0; i < top; i++)
+		{
+			if (i < idx)
+				tem[i] = st[i];
+			else
+				tem[i] = st[i + 1];		
+		}
+		
+		top--;
+
+		if (st != nullptr)
+			delete[] st;
+		st = new Contact[top+1];
+		for (size_t i = 0; i < top+1; i++)
+		{
+			st[i] = tem[i];
+		}
+		
+		delete[] tem;
+	}
 }
 void Contacts::Push(const Contact contactP)
 {
@@ -496,16 +530,17 @@ Contact Contacts::Pop()
 
 	if (!IsEmpty())
 	{
-		Contact* temp = new Contact[top - 1];
+		Contact* temp = new Contact[top];
 
-		for (size_t i = 0; i < top - 1; i++)
+		for (size_t i = 0; i < top; i++)
 			temp[i] = st[i];
 
 		t = st[top--];
 
 		delete[] st;
-		st = new Contact[top];
-		st = temp;
+		st = new Contact[top+1];
+		for (size_t i = 0; i <= top; i++)
+			st[i] = temp[i];
 		delete[] temp;
 	}
 
@@ -528,6 +563,14 @@ Contact Contacts::get_contact(int temp)
 	}
 
 	return tem;
+}
+void Contacts::set_contact(const Contact& contactP, int idx)
+{
+	if (idx < 0 || idx > top + 1)
+	{
+		throw "Error!!! Out of array index!!!\n";
+	}
+	st[idx] = contactP;
 }
 void Contacts::SaveToFile(int i) 
 {
@@ -660,11 +703,12 @@ int Contacts_Menu()
 	cout << "\nPlease make your choice:\n";
 	cout << " 1 - to see all contacts\n";
 	cout << " 2 - to add new contact\n";
-	cout << " 3 - to edit new contact\n";
+	cout << " 3 - to edit contact\n";
 	cout << " 4 - to delete contact\n";
 	cout << " 0 - to exit programm\n";
+	cout << "\nYour choice is - ";
 	cin >> temp;
-	cout << "Your choice is " << temp << endl;
+
 	return temp;
 }
 
@@ -695,7 +739,12 @@ int main() {
 
 		Contacts M2;
 		M2.LoadFromFile();
+		//M2.Show();
 
+		//M2.Pop();
+		//M2.Show();
+
+		int t;
 
 		do {
 			switch (Contacts_Menu()) {
@@ -703,12 +752,37 @@ int main() {
 				M2.Show();
 				break;
 			case 2:
-				M2.Push();
-				M2.get_contact(M2.GetCount()).Put();
+			{Contact c1;
+			c1.Put();
+			M2.Push(c1);
+			t = M2.GetCount();
+			M2.SaveToFile(t-1);
+			cout << "New contact added!\n";
+			break;
+			}
+			case 3:
+			{
+				cout << "\mPlese enter contact number to edit: ";
+				cin >> t;
+
+				cout << "\nEnter new contact details:\n";
+				Contact c2;
+				c2.Put();
+				M2.set_contact(c2, t-1);
+				remove("Contacts.txt");
+				M2.SaveAllToFile();
 				break;
-			case 3:  
-				
+			}
+			case 4:
+			{
+				cout << "\mPlese enter contact number to delete: ";
+				cin >> t;
+
+				M2.Delete(t);
+				remove("Contacts.txt");
+				M2.SaveAllToFile();
 				break;
+			}
 			case 0:  
 				cout << "Good Buy!\n";
 				return 0;	
