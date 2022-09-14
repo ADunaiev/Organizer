@@ -445,7 +445,6 @@ Contacts::Contacts()
 	top = EMPTY;
 	st = nullptr;
 }
-Contacts MyAddressBook;
 void Contacts::Clear()
 {
 	top = EMPTY;
@@ -716,33 +715,10 @@ int main() {
 
 	try 
 	{
-		//Contact c1 { "Andrii", "Dunaiev", {6, 9, 1978},
-		//	"adunaev@me.com", "+380503994545" };
-		//Contact c2{ "Vasia", "Frolov", {17, 4, 1981},
-		//	"vfrol@apple.com", "+380501111111" };
-		//Contact c3{ "Luda", "Kirilova", {30, 6, 1978},
-		//	"lkirilova@icloud.com", "+380671234567" };
-		//Contact c4{ "Petro", "Kirichenko", {12, 12, 1993},
-		//	"pk@github.com", "+380331325476" };
-		//Contact c5{ "Valia", "Kitaeva", {14, 5, 1998},
-		//	"vkitaeva@bbc.com", "+380501000000" };
 
-		//MyAddressBook.Push(c1);
-		//MyAddressBook.Push(c2);
-		//MyAddressBook.Push(c3);
-		//MyAddressBook.Push(c4);
-		//MyAddressBook.Push(c5);
-
-		//cout << "MyAddressBook\n";
-		//MyAddressBook.Show();	
-		//MyAddressBook.SaveAllToFile();
 
 		Contacts M2;
 		M2.LoadFromFile();
-		//M2.Show();
-
-		//M2.Pop();
-		//M2.Show();
 
 		int t;
 
@@ -775,7 +751,7 @@ int main() {
 			}
 			case 4:
 			{
-				cout << "\mPlese enter contact number to delete: ";
+				cout << "\Plese enter contact number to delete: ";
 				cin >> t;
 
 				M2.Delete(t);
